@@ -134,6 +134,31 @@ int main (int argc, char* argv[])
 #endif
 	newargs [k] = NULL;
 
+	/* config */
+	FILE *fileIn = fopen("monoconfig", "r");
+	if (fileIn == NULL)
+	{
+		printf("monoconfig not found!\n");
+		return 0;
+	}
+	fclose(fileIn);
 	setenv("MONO_CONFIG", "monoconfig", 0);
+
+	/* machine.config */
+	fileIn = fopen("monomachineconfig", "r");
+	if (fileIn == NULL)
+	{
+		printf("monomachineconfig not found!\n");
+		return 0;
+	}
+	fseek(fileIn, 0, SEEK_END);
+	long len = ftell(fileIn);
+	char *machineconfig = (char*) malloc(len); /* DO NOT FREE! -flibit */
+	fseek(fileIn, 0, SEEK_SET);
+	fread(machineconfig, len, 1, fileIn);
+	fclose(fileIn);
+	mono_register_machine_config(machineconfig);
+
+	/* Main(string[] args) */
 	return mono_main (k, newargs);
 }
